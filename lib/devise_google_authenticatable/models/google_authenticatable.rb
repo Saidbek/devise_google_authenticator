@@ -30,6 +30,7 @@ module Devise
         def validate_token(token)
           return false if self.gauth_tmp_datetime.nil?
           return false if self.gauth_tmp_datetime < self.class.ga_timeout.ago
+          return true if invalidate_backup_code!(token)
 
           valid_vals = []
           valid_vals << ROTP::TOTP.new(self.get_qr).at(Time.now)
@@ -68,6 +69,46 @@ module Devise
           self.class.ga_max_login_attempts
         end
 
+        # backup codes
+
+        def generate_backup_codes!
+          codes           = []
+          code_length     = self.class.ga_backup_code_length
+          number_of_codes = self.class.ga_number_of_backup_codes
+
+          number_of_codes.times do
+            codes << SecureRandom.hex(code_length / 2) # Hexstring has length 2*n
+          end
+
+          hashed_codes = codes.map { |code| Devise.bcrypt self.class, code }
+          self.gauth_backup_codes = hashed_codes
+          self.save
+          puts "--- gauth_backup_codes: #{self.gauth_backup_codes.inspect}"
+
+          codes
+        end
+
+        def invalidate_backup_code!(code)
+          codes = self.gauth_backup_codes || []
+
+          codes.each do |backup_code|
+            # We hashed the code with Devise.bcrypt, so if Devise changes that
+            # method, we'll have to adjust our comparison here to match it
+            # TODO Fork Devise and encapsulate this logic in a helper
+            bcrypt      = ::BCrypt::Password.new(backup_code)
+            hashed_code = ::BCrypt::Engine.hash_secret("#{code}#{self.class.pepper}", bcrypt.salt)
+
+            next unless Devise.secure_compare(hashed_code, backup_code)
+
+            codes.delete(backup_code)
+            self.gauth_backup_codes = codes
+            self.save
+            return true
+          end
+
+          false
+        end
+
         private
 
         def assign_auth_secret
@@ -80,7 +121,8 @@ module Devise
           where(gauth_tmp: gauth_tmp).first
         end
 
-        ::Devise::Models.config(self, :ga_timeout, :ga_timedrift, :ga_remembertime, :ga_appname, :ga_bypass_signup, :ga_max_login_attempts)
+        ::Devise::Models.config(self, :ga_timeout, :ga_timedrift, :ga_remembertime, :ga_appname, :ga_bypass_signup,
+                                :ga_max_login_attempts, :ga_backup_code_length, :ga_number_of_backup_codes)
       end
     end
   end

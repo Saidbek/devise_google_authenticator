@@ -1,4 +1,4 @@
-class Devise::CheckgaController < SessionsController
+class Devise::CheckgaController < Devise::SessionsController
   prepend_before_filter :devise_resource, only: [:show]
   prepend_before_filter :require_no_authentication, only: [ :show, :update ]
 
@@ -19,7 +19,7 @@ class Devise::CheckgaController < SessionsController
     if resource.present?
       return render :max_attempts_exceeded if resource.max_login_attempts?
 
-      if resource.validate_token(params[resource_name]['gauth_token'])
+      if resource.validate_token(params[resource_name][:gauth_token])
         set_flash_message(:notice, :signed_in) if is_navigational_format?
         sign_in(resource_name,resource)
         warden.manager._run_callbacks(:after_set_user, resource, warden, {event: :authentication})

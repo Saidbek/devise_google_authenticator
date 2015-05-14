@@ -23,6 +23,12 @@ module Devise # :nodoc:
 
 	mattr_accessor :ga_bypass_signup
 	@@ga_bypass_signup = false
+
+	mattr_accessor :ga_backup_code_length
+	@@ga_backup_code_length = 16
+
+	mattr_accessor :ga_number_of_backup_codes
+	@@ga_number_of_backup_codes = 5
 end
 
 # a security extension for devise
