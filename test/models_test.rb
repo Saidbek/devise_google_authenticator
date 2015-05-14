@@ -28,6 +28,10 @@ class ModelsTest < ActiveSupport::TestCase
     assert_equal 3, User.ga_timedrift
   end
 
+  test 'should have a default value for ga_max_login_attempts' do
+    assert_equal 3, User.ga_max_login_attempts
+  end
+
   test 'should have a new value for ga_appname' do
     old_ga_appname = User.ga_appname
     User.ga_appname = "test.app"

@@ -6,6 +6,9 @@ require 'active_support/concern'
 require 'devise'
 
 module Devise # :nodoc:
+	mattr_accessor :ga_max_login_attempts
+  @@ga_max_login_attempts = 3
+
 	mattr_accessor :ga_timeout
 	@@ga_timeout = 3.minutes
 
@@ -28,12 +31,10 @@ module DeviseGoogleAuthenticator
   autoload :Patches, 'devise_google_authenticatable/patches'
 end
 
-
-
 require 'devise_google_authenticatable/routes'
 require 'devise_google_authenticatable/rails'
 require 'devise_google_authenticatable/orm/active_record'
 require 'devise_google_authenticatable/controllers/helpers'
 ActionView::Base.send :include, DeviseGoogleAuthenticator::Controllers::Helpers
 
-Devise.add_module :google_authenticatable, :controller => :google_authenticatable, :model => 'devise_google_authenticatable/models/google_authenticatable', :route => :displayqr
+Devise.add_module :google_authenticatable, controller: :google_authenticatable, model: 'devise_google_authenticatable/models/google_authenticatable', route: :displayqr

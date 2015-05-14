@@ -88,7 +88,7 @@ class InvitationTest < ActionDispatch::IntegrationTest
     fill_in 'user_gauth_token', :with => '1'
     click_button 'Check Token'
 
-    assert_equal new_user_session_path, current_path
+    assert_equal user_checkga_path, current_path
     Capybara.reset_sessions!
   end
 
@@ -123,7 +123,7 @@ class InvitationTest < ActionDispatch::IntegrationTest
 
     User.ga_timeout = old_ga_timeout
 
-    assert_equal new_user_session_path, current_path
+    assert_equal user_checkga_path, current_path
     Capybara.reset_sessions!
   end
 
@@ -142,7 +142,7 @@ class InvitationTest < ActionDispatch::IntegrationTest
 
     User.ga_timedrift = old_ga_timedrift
 
-    assert_equal new_user_session_path, current_path
+    assert_equal user_checkga_path, current_path
     Capybara.reset_sessions!
   end
 

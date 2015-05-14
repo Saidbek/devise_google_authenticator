@@ -8,7 +8,8 @@ module DeviseGoogleAuthenticator
         data << "&issuer=#{issuer}" if !issuer.nil?
         data = Rack::Utils.escape(data)
         url = "https://chart.googleapis.com/chart?chs=200x200&chld=M|0&cht=qr&chl=#{data}"
-        return image_tag(url, :alt => 'Google Authenticator QRCode')
+
+        image_tag(url, alt: 'Google Authenticator QRCode')
       end
 
       def otpauth_user(username, app, qualifier=nil)
@@ -18,7 +19,6 @@ module DeviseGoogleAuthenticator
       def username_from_email(email)
         (/^(.*)@/).match(email)[1]
       end
-
     end
   end
 end
