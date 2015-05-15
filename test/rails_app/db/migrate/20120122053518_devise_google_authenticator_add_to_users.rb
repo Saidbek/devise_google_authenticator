@@ -6,13 +6,14 @@ class DeviseGoogleAuthenticatorAddToUsers < ActiveRecord::Migration
       t.string  :gauth_tmp
       t.datetime  :gauth_tmp_datetime
       t.integer  :gauth_attempts_count, :default => 0
+      t.string :gauth_backup_codes, array: true
     end
 
   end
   
   def self.down
     change_table :users do |t|
-      t.remove :gauth_secret, :gauth_enabled, :gauth_tmp, :gauth_tmp_datetime, :gauth_attempts_count
+      t.remove :gauth_secret, :gauth_enabled, :gauth_tmp, :gauth_tmp_datetime, :gauth_attempts_count, :gauth_backup_codes
     end
   end
 end
