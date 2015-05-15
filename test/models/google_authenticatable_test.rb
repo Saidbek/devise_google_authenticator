@@ -15,8 +15,16 @@ class GoogleAuthenticatableTest < ActiveSupport::TestCase
 		assert_equal 0, User.find(1).gauth_enabled.to_i
 	end
 
+	test 'new users should have gauth_attempts_count 0 by default' do
+		assert_equal 0, User.find(1).gauth_attempts_count
+	end
+
 	test 'get_qr method works' do
 		assert_not_nil User.find(1).get_qr
+	end
+
+	test 'generate_backup_codes! method works' do
+		assert_not_nil User.find(1).generate_backup_codes!
 	end
 
 	test 'updating gauth_enabled to true' do

@@ -170,7 +170,6 @@ class InvitationTest < ActionDispatch::IntegrationTest
 
     Timecop.travel(1.month.to_i + 1.day.to_i)
     # sign_in_as_user(testuser)
-    testuser = User.find_by_email("fulluser@test.com")
     visit new_user_session_path
     fill_in 'user_email', :with => 'fulluser@test.com'
     fill_in 'user_password', :with => "123456"
@@ -178,5 +177,20 @@ class InvitationTest < ActionDispatch::IntegrationTest
     assert_equal user_checkga_path, current_path
 
     Timecop.return
+  end
+
+  test 'user is exceeded maximum login attempts' do
+    create_full_user
+    User.find_by_email("fulluser@test.com").update_attribute(:gauth_attempts_count, 3)
+    visit new_user_session_path
+    fill_in 'user_email', :with => 'fulluser@test.com'
+    fill_in 'user_password', :with => "123456"
+    click_button "Log in"
+    testuser = User.find_by_email("fulluser@test.com")
+    fill_in 'user_gauth_token', :with => ROTP::TOTP.new(testuser.get_qr).at(Time.now)
+    click_button 'Check Token'
+    assert page.has_content?('Your account has been locked since you have reached the maximum number of 3 login attempts.'), 'exceeed max login attempts'
+    User.find_by_email("fulluser@test.com").update_attribute(:gauth_attempts_count, 0)
+    Capybara.reset_sessions!
   end
 end
