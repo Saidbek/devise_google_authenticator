@@ -83,7 +83,6 @@ module Devise
           hashed_codes = codes.map { |code| Devise.bcrypt self.class, code }
           self.gauth_backup_codes = hashed_codes
           self.save
-          puts "--- gauth_backup_codes: #{self.gauth_backup_codes.inspect}"
 
           codes
         end
